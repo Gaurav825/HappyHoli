@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holi Canvas</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+        h1 {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Happy Holi</h1>
+    <canvas id="holiCanvas" width="800" height="600"></canvas>
+    <button id="addColors">Add Colors</button>
+    <button id="removeColors" style="display: none;">Remove Colors</button>
+    <input type="file" id="imageUpload" accept="image/*">
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const canvas = document.getElementById("holiCanvas");
+            const addColorsButton = document.getElementById("addColors");
+            const removeColorsButton = document.getElementById("removeColors");
+            const imageUpload = document.getElementById("imageUpload");
+            const ctx = canvas.getContext("2d");
+            let isAddingColors = false;
+            let backgroundImage;
+
+            addColorsButton.addEventListener("click", function() {
+                isAddingColors = true;
+                addColorsButton.style.display = "none";
+                removeColorsButton.style.display = "block";
+            });
+
+            removeColorsButton.addEventListener("click", function() {
+                isAddingColors = false;
+                addColorsButton.style.display = "block";
+                removeColorsButton.style.display = "none";
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (backgroundImage) {
+                    ctx.drawImage(backgroundImage, 0, 0);
+                }
+            });
+
+            canvas.addEventListener("click", function(e) {
+                if (isAddingColors) {
+                    paintHoliEffect(e);
+                } else {
+                    burstBalloon(e);
+                }
+            });
+
+            imageUpload.addEventListener("change", function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = function() {
+                    backgroundImage = new Image();
+                    backgroundImage.onload = function() {
+                        ctx.drawImage(backgroundImage, 0, 0);
+                    };
+                    backgroundImage.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+            });
+
+            function paintHoliEffect(e) {
+                const colors = ["#AF1490", "#FF9900", "#599F00", "#3E43E5", "#E20000", "#6583C6", "#D95EB4", "#F15A50", "#FD9E1B", "#F9D73A", "#FC395D", "#FECC3B", "#438CFF", "#71CA97", "#FF3C38", "#FF9400", "#FFEC00", "#00EE5B", "#B6004C"];
+                const x = e.offsetX;
+                const y = e.offsetY;
+
+                // Save the current canvas state
+                ctx.save();
+
+                // Draw the background image if it exists
+                if (backgroundImage) {
+                    ctx.drawImage(backgroundImage, 0, 0);
+                }
+
+                for (let i = 0; i < 100; i++) {
+                    const colorIndex = Math.floor(Math.random() * colors.length);
+                    const radius = Math.random() * 10 + 5;
+                    const angle = Math.random() * Math.PI * 2;
+                    const velocity = Math.random() * 5 + 1;
+                    const vx = velocity * Math.cos(angle);
+                    const vy = velocity * Math.sin(angle);
+
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = colors[colorIndex];
+                    ctx.fill();
+
+                    // Draw a smaller circle inside the balloon
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius / 2, 0, Math.PI * 2);
+                    ctx.fillStyle = "white";
+                    ctx.fill();
+                    ctx.closePath();
+
+                    x += vx;
+                    y += vy;
+                }
+
+                // Restore the canvas state
+                ctx.restore();
+            }
+
+            function burstBalloon(e) {
+                // Not implemented
+            }
+        });
+    </script>
+</body>
+</html>
